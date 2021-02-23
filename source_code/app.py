@@ -17,6 +17,12 @@ books = [
 ]
 
 class Book(Resource):
+
+    parser = reqparse.RequestParser()
+    parser.add_argument('price',type=int, required=True,help="please include price in int type")
+    parser.add_argument('type', type=str, required=True, help="please provide type in string ")
+
+
     def get(self, name):
         for book in books:
             if book['name'] == name:
@@ -24,10 +30,11 @@ class Book(Resource):
         return {"message":"book not found"}, 404
 
     def post(self, name):
+       
         for book in books:
             if book['name'] == name:
                 return {"message":"{} book already exists.".format(name)}, 400 
-        data = request.get_json()
+        data = Book.parser.parse_args() 
         data["name"] = name
         books.append(data)
         return {"message":"book has been created"}, 201
@@ -40,11 +47,8 @@ class Book(Resource):
         return {"message": "book not found"}, 404 
 
     def put(self,name):
-        parser = reqparse.RequestParser()
-        parser.add_argument('price',type=int, required=True,help="please include price in int type")
-        parser.add_argument('type', type=str, required=True, help="please provide type in string ")
-
-        data = parser.parse_args() 
+    
+        data = Book.parser.parse_args() 
         for book in books:
             if book['name'] == name:
                 book.update(data)
